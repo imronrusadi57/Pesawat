@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPACE MISSION – PETUALANGAN LUAR ANGKASA</title>
+<style>
+:root{--cyan:#53e7ff;--pink:#ff5cc8;--gold:#ffd166;--ink:#080d2b;--panel:rgba(12,20,62,.88);--white:#f4f7ff}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,Segoe UI,Arial,sans-serif;color:var(--white);background:#05091f}
+body{overflow-x:hidden;background:radial-gradient(ellipse at 20% 10%,#263878 0,#101744 35%,#05091f 78%)}
+button,input{font:inherit}button{cursor:pointer;border:0;border-radius:13px;padding:12px 18px;font-weight:800;color:#08112f;background:linear-gradient(135deg,var(--cyan),#9df8ff);box-shadow:0 5px 0 #208ca9;transition:.15s}
+button:hover{filter:brightness(1.12);transform:translateY(-2px)}button:active{transform:translateY(2px);box-shadow:0 2px 0 #208ca9}
+button.secondary{background:linear-gradient(135deg,#ff83d5,#ffc0e9);box-shadow:0 5px 0 #a63b86}
+button.dark{background:#222e64;color:white;box-shadow:0 5px 0 #10183f;border:1px solid #6072c4}
+.topbar{position:relative;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px clamp(12px,3vw,32px);background:rgba(4,8,30,.78);border-bottom:1px solid #5266bd66;backdrop-filter:blur(12px)}
+.brand{font-weight:1000;letter-spacing:1px;color:var(--cyan);font-size:clamp(14px,2vw,21px)}.stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.chip{background:#182456;border:1px solid #6074d4;border-radius:99px;padding:7px 12px;font-size:13px;font-weight:800}
+main{max-width:1200px;margin:auto;padding:18px}.screen{display:none}.screen.active{display:block}
+.panel{background:var(--panel);border:1px solid #6579d9aa;border-radius:24px;padding:clamp(18px,3vw,30px);box-shadow:0 18px 55px #0008,inset 0 0 35px #394f9a22}
+.hero{min-height:78vh;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden}
+.hero h1{font-size:clamp(32px,6vw,66px);line-height:1.02;margin:12px 0;color:#fff;text-shadow:0 0 18px #52dfff99}.hero h1 span{color:var(--cyan)}.hero p{max-width:680px;color:#c9d8ff;line-height:1.65}
+.planet{position:absolute;border-radius:50%;filter:drop-shadow(0 0 22px #6b7dff88);pointer-events:none}.planet.one{width:120px;height:120px;right:7%;top:13%;background:radial-gradient(circle at 30% 25%,#ffe0a1,#d76b9c 45%,#4b3c9c 78%)}.planet.two{width:70px;height:70px;left:8%;bottom:13%;background:radial-gradient(circle at 30% 25%,#b9ffff,#2876bb 65%,#162a66)}
+.stars{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 90px 80px,#9deaff,transparent),radial-gradient(2px 2px at 160px 40px,#fff,transparent),radial-gradient(1px 1px at 220px 130px,#fff,transparent);background-size:270px 190px;opacity:.6;animation:twinkle 4s ease-in-out infinite alternate}
+@keyframes twinkle{to{opacity:.25;transform:translateY(-8px)}}@keyframes float{50%{transform:translateY(-12px) rotate(3deg)}}
+.startbox{position:relative;z-index:1;max-width:760px}.nameinput{width:min(360px,90%);padding:14px 16px;border-radius:12px;border:2px solid #6078d5;background:#101943;color:white;margin:12px 0;outline:none}.nameinput:focus{border-color:var(--cyan)}
+.instructions{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:22px 0}.instruction{background:#19265a;border-radius:14px;padding:13px;color:#dce6ff;font-size:14px}
+.gamegrid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:16px;align-items:start}.arena{position:relative;min-height:500px;height:min(66vh,650px);overflow:hidden;border-radius:22px;border:2px solid #516ac4;background:radial-gradient(ellipse at 50% 100%,#253b82 0,#101941 48%,#070d28 100%);box-shadow:inset 0 0 65px #000b}
+#gameCanvas{width:100%;height:100%;display:block}.side{display:grid;gap:12px}.question{font-size:18px;line-height:1.5;font-weight:800;color:#fff}.tag{display:inline-block;color:#08132f;background:var(--gold);border-radius:8px;padding:4px 9px;font-size:11px;font-weight:1000;letter-spacing:.8px;margin-bottom:10px}
+.missionbar{height:9px;background:#253263;border-radius:99px;overflow:hidden;margin:8px 0}.missionbar>div{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),#9cffcb);transition:width .3s}
+.cameraBox{background:#0b1438;border:1px solid #4d63b8;border-radius:16px;padding:12px}.cameraBox video{width:100%;border-radius:10px;background:#030716;transform:scaleX(-1);display:none}.camstatus{font-size:12px;color:#c4d5ff;margin:7px 0}.controls{display:flex;gap:8px;flex-wrap:wrap}.controls button{font-size:12px;padding:9px 12px}
+.overlay{position:absolute;inset:0;display:none;place-items:center;background:#03081dcc;z-index:3;padding:18px;text-align:center}.overlay.show{display:grid}.overlay .panel{max-width:480px}
+.missioncards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:18px}.missioncard{padding:16px;border-radius:16px;background:#162252;border:1px solid #4d60ac}.missioncard.locked{opacity:.45;filter:grayscale(.8)}.missioncard strong{display:block;color:var(--cyan);margin-bottom:6px}
+.feedback{min-height:24px;font-weight:800;color:var(--gold);font-size:14px}.win{text-align:center;padding:50px 20px}.win h2{font-size:clamp(32px,5vw,54px);color:#a8ffdc}
+.small{font-size:12px;color:#aebfe9;line-height:1.5}.kbd{display:inline-block;border:1px solid #7182c7;background:#10183c;border-radius:5px;padding:2px 6px;font-size:11px}
+@media(max-width:850px){.gamegrid{grid-template-columns:1fr}.arena{height:55vh;min-height:390px}.side{grid-template-columns:1fr 1fr}.side .panel:first-child{grid-column:1/-1}}
+@media(max-width:560px){main{padding:10px}.topbar{align-items:flex-start;flex-direction:column}.stats{justify-content:flex-start}.side{grid-template-columns:1fr}.side .panel:first-child{grid-column:auto}.arena{min-height:360px;height:50vh}.planet.one{width:75px;height:75px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <div class="brand">🚀 SPACE MISSION</div>
+ <div class="stats"><span class="chip" id="navName">Astronot: —</span><span class="chip">⭐ Skor: <b id="navScore">0</b></span><span class="chip">❤️ Nyawa: <b id="navLives">3</b></span><span class="chip">🪐 Misi: <b id="navMission">0/5</b></span></div>
+</header>
+<main>
+<section id="startScreen" class="screen active">
+ <div class="panel hero"><div class="stars"></div><div class="planet one"></div><div class="planet two"></div>
+  <div class="startbox">
+   <div style="font-size:64px;animation:float 3s ease-in-out infinite">🧑‍🚀</div>
+   <div class="tag">MATEMATIKA • KELAS 5</div>
+   <h1>SPACE <span>MISSION</span><br><small style="font-size:.52em">PETUALANGAN LUAR ANGKASA</small></h1>
+   <p>Jadilah astronot pemberani! Selesaikan 5 misi bangun datar, kumpulkan energi bintang, dan selamatkan galaksi dari badai asteroid.</p>
+   <input id="studentName" class="nameinput" maxlength="24" placeholder="Masukkan nama astronot..." aria-label="Nama siswa">
+   <br><button id="startBtn">MULAI PETUALANGAN 🚀</button>
+   <div class="instructions">
+    <div class="instruction">🖐️ <b>Gesture tangan</b><br>Aktifkan kamera, gerakkan telapak tangan untuk mengarahkan pesawat.</div>
+    <div class="instruction">🖱️ <b>Mouse</b><br>Gerakkan kursor di area arena untuk mengendalikan pesawat.</div>
+    <div class="instruction">⌨️ <b>Keyboard</b><br>Gunakan tombol panah atau A / D / W / S.</div>
+   </div>
+   <p class="small">Setiap jawaban benar mendapat 100 poin dasar + bonus kecepatan (2 poin untuk setiap detik tersisa; maksimal 160 poin). Waktu tiap soal 30 detik. Jawaban salah, waktu habis, atau asteroid terlewat mengurangi 1 nyawa. Setiap misi berisi 3 soal.</p>
+  </div>
+ </div>
+</section>
+<section id="gameScreen" class="screen">
+ <div class="gamegrid">
+  <div class="arena" id="arena">
+   <canvas id="gameCanvas"></canvas>
+   <div class="overlay" id="pauseOverlay"><div class="panel"><h2>⏸️ JEDA MISI</h2><p>Tarik napas, astronot!</p><button id="resumeBtn">LANJUTKAN</button></div></div>
+   <div class="overlay" id="resultOverlay"><div class="panel"><div id="resultIcon" style="font-size:48px">✨</div><h2 id="resultTitle">Hebat!</h2><p id="resultText"></p><button id="resultBtn">LANJUT</button></div></div>
+  </div>
+  <aside class="side">
+   <div class="panel">
+    <div class="tag" id="difficultyTag">MISI 1 • PEMULA</div>
+    <div class="question" id="questionText">Pertanyaan akan tampil di sini.</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px"><div class="small" id="questionLevel">LOTS • Soal 1 dari 3</div><div class="chip" id="timerDisplay" style="font-size:16px;color:#ffd166">⏱️ 30 detik</div></div>
+    <div class="missionbar"><div id="questionProgress"></div></div>
+    <div class="feedback" id="feedback">Arahkan pesawat ke asteroid jawaban yang tepat.</div>
+   </div>
+   <div class="panel">
+    <b>🗺️ PETA MISI</b><div class="missioncards" id="missionCards"></div>
+   </div>
+   <div class="panel cameraBox">
+    <b>🖐️ KONTROL GESTURE</b>
+    <div class="camstatus" id="camStatus">Kamera akan meminta izin otomatis saat permainan dimulai.</div>
+    <video id="cameraVideo" autoplay playsinline muted></video>
+    <div class="controls" style="margin-top:9px"><button id="cameraBtn">AKTIFKAN KAMERA</button><button class="dark" id="pauseBtn">JEDA</button><button class="dark" id="homeBtn">MENU</button></div>
+    <p class="small">Kamera meminta izin otomatis saat tombol Mulai ditekan. Jika tidak tersedia atau izin ditolak, gunakan mouse atau keyboard. Kamera membutuhkan HTTPS atau localhost.</p>
+   </div>
+  </aside>
+ </div>
+</section>
+<section id="winScreen" class="screen">
+ <div class="panel win"><div style="font-size:76px">🏆🚀🌌</div><div class="tag">GALAKSI TERSelAMATKAN</div><h2 id="winTitle">MISI BERHASIL!</h2><p id="winMessage" style="font-size:18px;color:#d9e5ff"></p><p id="winStats"></p><button id="playAgainBtn">MAIN KEMBALI</button></div>
+</section>
+<section id="gameOverScreen" class="screen">
+ <div class="panel win"><div style="font-size:72px">🛸💫</div><h2>ENERGI HABIS!</h2><p id="loseMessage">Jangan menyerah, astronot.</p><button id="retryBtn">COBA LAGI</button> <button class="dark" id="loseHomeBtn">MENU UTAMA</button></div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script>
+(()=> {
+'use strict';
+const $=id=>document.getElementById(id);
+const canvas=$('gameCanvas'),ctx=canvas.getContext('2d'),arena=$('arena'),video=$('cameraVideo');
+const missions=[
+ {name:'Orbit Dasar',level:'PEMULA',questions:[
+  q('LOTS','Bangun datar yang memiliki 3 sisi disebut ....',['Persegi','Segitiga','Lingkaran'],1,'Segitiga memiliki tiga sisi dan tiga titik sudut.'),
+  q('MOTS','Sebuah persegi memiliki sisi 6 cm. Berapa kelilingnya?',['12 cm','24 cm','36 cm'],1,'Keliling persegi = 4 × sisi = 4 × 6 = 24 cm.'),
+  q('HOTS','Rani ingin membuat bingkai berbentuk persegi. Panjang seluruh sisi bingkai 32 cm. Berapa panjang satu sisinya?',['6 cm','8 cm','10 cm'],1,'Sisi persegi = keliling ÷ 4 = 32 ÷ 4 = 8 cm.')
+ ]},
+ {name:'Sabuk Asteroid',level:'MENENGAH',questions:[
+  q('LOTS','Bangun datar yang memiliki tepat satu pasang sisi sejajar adalah ....',['Trapesium','Persegi','Lingkaran'],0,'Trapesium memiliki sepasang sisi sejajar.'),
+  q('MOTS','Persegi panjang berukuran 9 cm × 4 cm. Luasnya adalah ....',['13 cm²','26 cm²','36 cm²'],2,'Luas persegi panjang = panjang × lebar = 9 × 4 = 36 cm².'),
+  q('HOTS','Sebuah taman berbentuk persegi panjang memiliki luas 48 m² dan panjang 8 m. Lebarnya adalah ....',['5 m','6 m','8 m'],1,'Lebar = luas ÷ panjang = 48 ÷ 8 = 6 m.')
+ ]},
+ {name:'Planet Geometri',level:'MENANTANG',questions:[
+  q('LOTS','Bangun datar yang semua titik pada garis lengkungnya berjarak sama dari titik pusat adalah ....',['Oval','Lingkaran','Segitiga'],1,'Lingkaran memiliki jarak yang sama dari titik pusat ke setiap titik pada kelilingnya.'),
+  q('MOTS','Segitiga memiliki alas 10 cm dan tinggi 6 cm. Luasnya adalah ....',['30 cm²','60 cm²','16 cm²'],0,'Luas segitiga = ½ × alas × tinggi = ½ × 10 × 6 = 30 cm².'),
+  q('HOTS','Lantai berbentuk persegi memiliki luas 81 m². Jika dipasang pita mengelilingi tepinya, panjang pita yang dibutuhkan adalah ....',['18 m','27 m','36 m'],2,'Sisi = √81 = 9 m. Keliling = 4 × 9 = 36 m.')
+ ]},
+ {name:'Nebula Luas',level:'AHLI',questions:[
+  q('LOTS','Rumus luas jajargenjang adalah ....',['alas × tinggi','4 × sisi','½ × alas × tinggi'],0,'Luas jajargenjang = alas × tinggi.'),
+  q('MOTS','Jajargenjang memiliki alas 12 cm dan tinggi 5 cm. Luasnya ....',['17 cm²','30 cm²','60 cm²'],2,'Luas = 12 × 5 = 60 cm².'),
+  q('HOTS','Sebuah layang-layang memiliki diagonal 12 cm dan 8 cm. Luasnya sama dengan ....',['48 cm²','96 cm²','40 cm²'],0,'Luas layang-layang = ½ × d1 × d2 = ½ × 12 × 8 = 48 cm².')
+ ]},
+ {name:'Inti Galaksi',level:'MASTER',questions:[
+  q('LOTS','Bangun datar yang memiliki dua pasang sisi berhadapan sejajar dan sama panjang adalah ....',['Trapesium sembarang','Jajargenjang','Segitiga'],1,'Jajargenjang memiliki dua pasang sisi berhadapan yang sejajar dan sama panjang.'),
+  q('MOTS','Belah ketupat memiliki diagonal 10 cm dan 14 cm. Luasnya ....',['70 cm²','140 cm²','24 cm²'],0,'Luas belah ketupat = ½ × 10 × 14 = 70 cm².'),
+  q('HOTS','Dua bentuk ubin menutupi lantai: persegi panjang 8 × 6 cm dan segitiga beralas 8 cm, tinggi 6 cm. Berapa selisih luas keduanya?',['24 cm²','48 cm²','0 cm²'],0,'Luas persegi panjang 48 cm², luas segitiga 24 cm². Selisihnya 24 cm².')
+ ]}
+];
+function q(level,text,answers,correct,explain){return {level,text,answers,correct,explain}}
+const missionNames=missions.map(m=>m.name);
+let student='Astronot',score=0,lives=3,mission=0,qi=0,unlocked=1,paused=false,active=false,answered=false,raf=0;
+let ship={x:.5,y:.82},keys={},asteroids=[],stars=[],lastTime=0,stream=null,mpHands=null,mpCamera=null,handActive=false,mouseActive=false, timeLeft=30;
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+function updateHUD(){$('navName').textContent='Astronot: '+student;$('navScore').textContent=score;$('navLives').textContent=lives;$('navMission').textContent=mission+'/5'}
+function renderMissions(){$('missionCards').innerHTML=missions.map((m,i)=>`<div class="missioncard ${i>=unlocked?'locked':''}"><strong>${i<mission?'✅':i===mission?'🚀':'🔒'} MISI ${i+1}</strong>${m.name}<div class="small">${i<unlocked?'Terbuka':'Selesaikan misi sebelumnya'}</div></div>`).join('')}
+function begin(){student=$('studentName').value.trim()||'Astronot';timeLeft=30;updateTimerDisplay();score=0;lives=3;mission=0;qi=0;unlocked=1;paused=false;active=true;answered=false;ship={x:.5,y:.82};updateHUD();renderMissions();showScreen('gameScreen');loadQuestion();resize();makeStars();spawnAsteroids();cancelAnimationFrame(raf);lastTime=0;raf=requestAnimationFrame(loop);startCamera()}
+function loadQuestion(){answered=false;timeLeft=30;updateTimerDisplay();const data=missions[mission].questions[qi];$('difficultyTag').textContent=`MISI ${mission+1} • ${missions[mission].level}`;$('questionText').textContent=data.text;$('questionLevel').textContent=`${data.level} • Soal ${qi+1} dari 3`;$('questionProgress').style.width=((qi)/3*100)+'%';$('feedback').textContent='Arahkan pesawat ke asteroid jawaban yang tepat.';spawnAsteroids();updateHUD();renderMissions()}
+function updateTimerDisplay(){const el=$('timerDisplay');if(!el)return;const seconds=Math.max(0,Math.ceil(timeLeft));el.textContent='⏱️ '+seconds+' detik';el.style.color=seconds<=10?'#ff8da8':'#ffd166';el.style.borderColor=seconds<=10?'#ff6d91':'#6074d4';}
+function resize(){const r=arena.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0)}
+function makeStars(){stars=Array.from({length:90},()=>({x:Math.random(),y:Math.random(),s:Math.random()*2+0.5,v:Math.random()*.0008+.0002}))}
+function spawnAsteroids(){asteroids=[];const data=missions[mission].questions[qi];const order=[0,1,2].sort(()=>Math.random()-.5);order.forEach((answerIndex,i)=>asteroids.push({x:.2+i*.3+(Math.random()-.5)*.07,y:.22+Math.random()*.28,r:37,label:data.answers[answerIndex],answerIndex,rot:Math.random()*6,vy:.00007+mission*.000025,hit:false}))}
+function drawShip(x,y){ctx.save();ctx.translate(x,y);ctx.shadowColor='#54eaff';ctx.shadowBlur=18;ctx.fillStyle='#c9faff';ctx.beginPath();ctx.moveTo(0,-25);ctx.lineTo(20,17);ctx.lineTo(0,10);ctx.lineTo(-20,17);ctx.closePath();ctx.fill();ctx.fillStyle='#3e8dff';ctx.beginPath();ctx.ellipse(0,-4,7,10,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff9d4d';ctx.beginPath();ctx.moveTo(-8,17);ctx.lineTo(0,32+Math.random()*5);ctx.lineTo(8,17);ctx.fill();ctx.restore()}
+function drawAsteroid(a){ctx.save();ctx.translate(a.x*W(),a.y*H());ctx.rotate(a.rot);ctx.shadowColor='#ffb65e';ctx.shadowBlur=14;const grad=ctx.createRadialGradient(-12,-13,3,0,0,a.r);grad.addColorStop(0,'#e6c7a2');grad.addColorStop(.55,'#997b91');grad.addColorStop(1,'#453c70');ctx.fillStyle=grad;ctx.beginPath();for(let j=0;j<10;j++){let ang=j*Math.PI/5,rr=a.r*(j%2?.88:1);let x=Math.cos(ang)*rr,y=Math.sin(ang)*rr;j?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';wrapText(a.label,0,0,a.r*1.45,15);ctx.restore()}
+function wrapText(text,x,y,maxWidth,lineHeight){let words=text.split(' '),line='',lines=[];for(let w of words){let test=line+w+' ';if(ctx.measureText(test).width>maxWidth&&line){lines.push(line.trim());line=w+' '}else line=test}lines.push(line.trim());let yy=y-(lines.length-1)*lineHeight/2;lines.forEach(l=>{ctx.fillText(l,x,yy);yy+=lineHeight})}
+function W(){return arena.clientWidth}function H(){return arena.clientHeight}
+function loop(t){if(!active)return;raf=requestAnimationFrame(loop);if(paused)return;let dt=Math.min(40,t-(lastTime||t));lastTime=t;if(!answered){timeLeft=Math.max(0,timeLeft-dt/1000);updateTimerDisplay();if(timeLeft<=0){loseLife('Waktu 30 detik habis!');return}}let w=W(),h=H();
+ if(!handActive&&!mouseActive){if(keys.ArrowLeft||keys.a)ship.x-=.004*dt;if(keys.ArrowRight||keys.d)ship.x+=.004*dt;if(keys.ArrowUp||keys.w)ship.y-=.004*dt;if(keys.ArrowDown||keys.s)ship.y+=.004*dt}
+ ship.x=Math.max(.06,Math.min(.94,ship.x));ship.y=Math.max(.48,Math.min(.91,ship.y));
+ ctx.clearRect(0,0,w,h);let bg=ctx.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#080e2d');bg.addColorStop(1,'#17285b');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+ stars.forEach(s=>{s.y+=s.v*dt*2;if(s.y>1)s.y=0;ctx.fillStyle='#dffaff';ctx.globalAlpha=.45+Math.sin(t/400+s.x*20)*.35;ctx.beginPath();ctx.arc(s.x*w,s.y*h,s.s,0,Math.PI*2);ctx.fill()});ctx.globalAlpha=1;
+ // Decorative distant planets
+ ctx.fillStyle='#584c9c';ctx.globalAlpha=.3;ctx.beginPath();ctx.arc(w*.86,h*.15,43,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ asteroids.forEach(a=>{a.y+=a.vy*dt;if(a.y>.78&&!a.hit){a.hit=true;loseLife('Asteroid jawaban terlewat!')}drawAsteroid(a)});
+ drawShip(ship.x*w,ship.y*h);
+ // collision
+ if(!answered){for(const a of asteroids){if(a.hit)continue;let dx=a.x*w-ship.x*w,dy=a.y*h-ship.y*h;if(Math.hypot(dx,dy)<a.r+18){a.hit=true;checkAnswer(a.answerIndex);break}}}
+}
+function checkAnswer(index){if(answered)return;answered=true;const data=missions[mission].questions[qi];if(index===data.correct){const speedBonus=Math.ceil(timeLeft)*2;const earned=100+speedBonus;score+=earned;$('feedback').textContent=`✅ BENAR! +${earned} poin (100 dasar + ${speedBonus} bonus kecepatan). `+data.explain;$('feedback').style.color='#9cffcb';$('resultIcon').textContent='🌟';$('resultTitle').textContent='Jawaban Tepat!';$('resultText').textContent=`Kamu memperoleh ${earned} poin! Semakin cepat menjawab, semakin besar bonusnya. `+data.explain;$('resultBtn').textContent=qi===2?(mission===4?'SELESAI':'MISI BERIKUTNYA'):'SOAL BERIKUTNYA';}else{lives--; $('feedback').textContent='❌ Belum tepat. '+data.explain;$('feedback').style.color='#ff9aaf';$('resultIcon').textContent='💥';$('resultTitle').textContent='Asteroid Melenceng!';$('resultText').textContent='Nyawa berkurang 1. '+data.explain;$('resultBtn').textContent='COBA SOAL BERIKUTNYA';}
+ updateHUD();$('resultOverlay').classList.add('show');if(lives<=0)$('resultBtn').textContent='LIHAT HASIL';
+}
+function loseLife(reason){if(!active||answered)return;answered=true;lives--;updateHUD();$('feedback').textContent='⚠️ '+reason;$('resultIcon').textContent='💫';$('resultTitle').textContent='Kesempatan Berkurang';$('resultText').textContent=reason+' Nyawa tersisa: '+lives;$('resultBtn').textContent=lives<=0?'LIHAT HASIL':'ULANGI SOAL';$('resultOverlay').classList.add('show')}
+function nextStep(){ $('resultOverlay').classList.remove('show');if(lives<=0){endGame(false);return}if(answered&&$('resultTitle').textContent==='Kesempatan Berkurang'){loadQuestion();return}
+ qi++;if(qi>=3){if(mission===4){endGame(true);return}unlocked=Math.max(unlocked,mission+2);mission++;qi=0;renderMissions()}loadQuestion()}
+function endGame(won){active=false;cancelAnimationFrame(raf);stopCamera();if(won){$('winTitle').textContent='HEBAT, '+student.toUpperCase()+'!';$('winMessage').textContent='Kamu berhasil menyelesaikan seluruh 5 misi dan menyelamatkan galaksi! Teruslah berlatih menjadi penjelajah matematika.';$('winStats').textContent=`Skor akhir: ${score} poin • Nyawa tersisa: ${lives}`;showScreen('winScreen')}else{$('loseMessage').textContent=`Tidak apa-apa, ${student}. Kamu memperoleh ${score} poin. Coba lagi dan taklukkan semua misi!`;showScreen('gameOverScreen')}}
+function pause(){paused=true;$('pauseOverlay').classList.add('show')}function resume(){paused=false;$('pauseOverlay').classList.remove('show')}
+function moveFromPointer(e){const r=canvas.getBoundingClientRect();ship.x=(e.clientX-r.left)/r.width;ship.y=(e.clientY-r.top)/r.height;mouseActive=true}
+canvas.addEventListener('pointermove',moveFromPointer);canvas.addEventListener('pointerdown',moveFromPointer);canvas.addEventListener('pointerleave',()=>{mouseActive=false});
+window.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();keys[e.key]=true});window.addEventListener('keyup',e=>keys[e.key]=false);
+$('startBtn').onclick=begin;$('resultBtn').onclick=nextStep;$('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;$('homeBtn').onclick=()=>{active=false;cancelAnimationFrame(raf);stopCamera();showScreen('startScreen')};$('playAgainBtn').onclick=()=>{stopCamera();begin()};$('retryBtn').onclick=()=>begin();$('loseHomeBtn').onclick=()=>showScreen('startScreen');
+window.addEventListener('resize',()=>{if($('gameScreen').classList.contains('active'))resize()});
+async function startCamera(){
+ if(!navigator.mediaDevices?.getUserMedia){$('camStatus').textContent='Browser tidak mendukung akses kamera. Gunakan mouse/keyboard.';return}
+ try{
+  $('camStatus').textContent='Meminta izin kamera...';
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
+  video.srcObject=stream;video.style.display='block';await video.play();
+  if(!window.Hands){$('camStatus').textContent='MediaPipe belum termuat. Periksa koneksi internet; mouse/keyboard tetap tersedia.';return}
+  mpHands=new Hands({locateFile:(file)=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+  mpHands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.6,minTrackingConfidence:.55});
+  mpHands.onResults(results=>{
+   if(!active||paused)return;const hand=results.multiHandLandmarks?.[0];if(hand){const palm=hand[9];ship.x=1-palm.x;ship.y=Math.max(.48,Math.min(.91,palm.y));handActive=true;$('camStatus').textContent='🟢 Gesture aktif — telapak tangan terdeteksi.'}else{handActive=false;$('camStatus').textContent='🟡 Kamera aktif — tunjukkan telapak tangan ke kamera.'}
+  });
+  mpCamera=new Camera(video,{onFrame:async()=>{if(mpHands)await mpHands.send({image:video})},width:640,height:480});mpCamera.start();
+  $('camStatus').textContent='🟢 Kamera aktif — tunjukkan telapak tangan.';$('cameraBtn').textContent='MATIKAN KAMERA';
+ }catch(err){$('camStatus').textContent='Kamera gagal diaktifkan: '+(err.message||'izin ditolak')+'. Gunakan mouse/keyboard.';stopCamera()}
+}
+function stopCamera(){try{if(mpCamera&&mpCamera.stop)mpCamera.stop()}catch(e){}mpCamera=null;mpHands=null;handActive=false;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;video.style.display='none';$('cameraBtn').textContent='AKTIFKAN KAMERA';$('camStatus').textContent='Kamera akan meminta izin otomatis saat permainan dimulai.'}
+$('cameraBtn').onclick=()=>{if(stream)stopCamera();else startCamera()};
+})();
+</script>
+</body>
+</html>
